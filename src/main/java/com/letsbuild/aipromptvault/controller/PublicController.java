@@ -36,9 +36,9 @@ public class PublicController {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        userService.saveUser(newUser);
+        User savedUser = userService.saveUser(newUser);
 
-        if(newUser!=null) {
+        if(savedUser!=null) {
             return new ResponseEntity<>("User created", HttpStatus.CREATED);
         }else {
             return new ResponseEntity<>( HttpStatus.NO_CONTENT);
