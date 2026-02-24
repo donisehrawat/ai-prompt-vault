@@ -1,7 +1,10 @@
 package com.letsbuild.aipromptvault.controller;
 
 
+import com.letsbuild.aipromptvault.dto.SignUpRequest;
 import com.letsbuild.aipromptvault.entity.User;
+import com.letsbuild.aipromptvault.enums.Role;
+import com.letsbuild.aipromptvault.repository.UserRepo;
 import com.letsbuild.aipromptvault.security.SpringSecurity;
 import com.letsbuild.aipromptvault.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,26 +27,29 @@ public class PublicController {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final UserRepo userRepo;
+
     @PostMapping("/sign-up")
-    public ResponseEntity<?> signUp(@RequestBody User user){
-        User newUser = User.builder()
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .password(passwordEncoder.encode(user.getPassword()))
-                .role(user.getRole())
-                .enabled(user.isEnabled())
-                .googleAccount(user.isGoogleAccount())
+    public ResponseEntity<?> signUp(@RequestBody SignUpRequest request){
+
+        if(userRepo.existsByUsername(request.getUsername())) {
+            return ResponseEntity.badRequest().body("Username already exists");
+        }
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)        // YOU decide
+                .enabled(true)       // YOU decide
+                .googleAccount(false)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        User savedUser = userService.saveUser(newUser);
+        userService.saveUser(user);
 
-        if(savedUser!=null) {
-            return new ResponseEntity<>("User created", HttpStatus.CREATED);
-        }else {
-            return new ResponseEntity<>( HttpStatus.NO_CONTENT);
-
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("User created successfully");
     }
 
 }

@@ -1,6 +1,8 @@
 package com.letsbuild.aipromptvault.controller;
 
 
+import com.letsbuild.aipromptvault.dto.CreatePromptRequest;
+import com.letsbuild.aipromptvault.dto.ViewPrompts;
 import com.letsbuild.aipromptvault.entity.Prompt;
 import com.letsbuild.aipromptvault.entity.User;
 import com.letsbuild.aipromptvault.repository.PromptRepo;
@@ -16,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -30,19 +33,31 @@ public class PromptController {
 
     private final UserService userService;
 
+    @GetMapping("/view-prompts")
+    public ResponseEntity<?> getUserPrompts(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        List<ViewPrompts> myPrompts = promptService.getMyPrompts(username);
+        if(myPrompts!=null && !myPrompts.isEmpty()){
+            return new ResponseEntity<>(myPrompts,HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/your-prompt")
-    public ResponseEntity<?> yourPrompt(@RequestBody Prompt prompt) {
+    public ResponseEntity<?> yourPrompt(@RequestBody CreatePromptRequest createPromptRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userService.findByUsername(username);
         try {
             Prompt newPrompt = Prompt.builder()
-                    .title(prompt.getTitle())
-                    .content(prompt.getContent())
-                    .tags(prompt.getTags())
+                    .title(createPromptRequest.getTitle())
+                    .content(createPromptRequest.getContent())
+                    .tags(createPromptRequest.getTags())
                     .userId(user.getId())
                     .likeCount(0)
-                    .visibility(prompt.getVisibility())
+                    .visibility(createPromptRequest.getVisibility())
                     .createdAt(LocalDateTime.now())
                     .build();
 
@@ -55,5 +70,17 @@ public class PromptController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Something went wrong");
         }
+    }
+
+    @PutMapping("/editprompt/{id}")
+    public ResponseEntity<?> editPrompt(@PathVariable String id , @RequestBody CreatePromptRequest newPrompt){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        promptService.editPrompt(id,username,newPrompt);
+
+        return ResponseEntity.ok("Prompt updated successfully");
+
     }
 }
