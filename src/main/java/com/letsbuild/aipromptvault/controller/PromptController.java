@@ -16,10 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/prompt")
@@ -83,4 +81,16 @@ public class PromptController {
         return ResponseEntity.ok("Prompt updated successfully");
 
     }
+
+    @DeleteMapping("/deleteprompt/{id}")
+    public ResponseEntity<?> deletePrompt(@PathVariable String id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        promptService.deletePrompt(id);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
 }

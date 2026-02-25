@@ -1,6 +1,7 @@
 package com.letsbuild.aipromptvault.service;
 
 
+import com.letsbuild.aipromptvault.dto.SignUpRequest;
 import com.letsbuild.aipromptvault.entity.User;
 import com.letsbuild.aipromptvault.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,35 @@ public class UserService {
         return userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    public void deleteUser(String username){
+
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("user not found"));
+        userRepo.delete(user);
+
+    }
+
+    public void editUser(SignUpRequest editUser, String username){
+
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new RuntimeException("user not found"));
+
+        if(editUser.getUsername()!=null){
+            user.setUsername(editUser.getUsername());
+        }
+
+        if(editUser.getEmail()!=null){
+            user.setEmail(editUser.getEmail());
+        }
+
+        if(editUser.getPassword()!=null){
+            user.setPassword(editUser.getPassword());
+        }
+
+        userRepo.save(user);
+
+    }
+
+
 
 
 

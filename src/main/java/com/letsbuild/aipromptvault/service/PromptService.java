@@ -88,6 +88,16 @@ public class PromptService {
 
     }
 
+    public void deletePrompt(String id){
+
+        Prompt prompt = promptRepo.findById(id).orElseThrow(() -> new RuntimeException("prompt not found"));
+
+        promptRepo.deleteById(prompt.getId());
+    }
+
+
+
+
 
 
 }
