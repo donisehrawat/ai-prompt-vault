@@ -32,4 +32,8 @@ public class User {
     private boolean googleAccount;
 
     private LocalDateTime createdAt;
+
+    private int followers;
+
+    private int following;
 }

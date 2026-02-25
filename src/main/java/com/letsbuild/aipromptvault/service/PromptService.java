@@ -1,13 +1,17 @@
 package com.letsbuild.aipromptvault.service;
 
 import com.letsbuild.aipromptvault.dto.CreatePromptRequest;
+import com.letsbuild.aipromptvault.dto.PublicFeedResponse;
 import com.letsbuild.aipromptvault.dto.ViewPrompts;
 import com.letsbuild.aipromptvault.entity.Prompt;
 import com.letsbuild.aipromptvault.entity.User;
+import com.letsbuild.aipromptvault.enums.Visibility;
 import com.letsbuild.aipromptvault.repository.PromptRepo;
 import com.letsbuild.aipromptvault.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -95,9 +100,30 @@ public class PromptService {
         promptRepo.deleteById(prompt.getId());
     }
 
+    public List<PublicFeedResponse> getPublicPrompts() {
 
+        List<Prompt> byVisibilityOrderByCreatedAtDesc = promptRepo.findByVisibilityOrderByCreatedAtDesc(Visibility.PUBLIC);
 
+        return byVisibilityOrderByCreatedAtDesc.stream().map(this::convertToPublicDto).toList();
 
+    }
+
+    private PublicFeedResponse convertToPublicDto(Prompt prompt) {
+
+        User user = userRepo.findById(prompt.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return PublicFeedResponse.builder()
+                .id(prompt.getId())
+                .title(prompt.getTitle())
+                .username(user.getUsername())
+                .likeCount(prompt.getLikeCount())
+                .viewCount(prompt.getViewCount())
+                .createdAt(prompt.getCreatedAt())
+                .content(prompt.getContent())
+                .tags(prompt.getTags())
+                .build();
+    }
 
 
 }

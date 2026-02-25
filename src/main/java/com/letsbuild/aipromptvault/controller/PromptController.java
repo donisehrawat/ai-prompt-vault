@@ -9,6 +9,7 @@ import com.letsbuild.aipromptvault.repository.PromptRepo;
 import com.letsbuild.aipromptvault.repository.UserRepo;
 import com.letsbuild.aipromptvault.service.PromptService;
 import com.letsbuild.aipromptvault.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,7 @@ public class PromptController {
     }
 
     @PostMapping("/your-prompt")
-    public ResponseEntity<?> yourPrompt(@RequestBody CreatePromptRequest createPromptRequest) {
+    public ResponseEntity<?> yourPrompt(@Valid @RequestBody CreatePromptRequest createPromptRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         User user = userService.findByUsername(username);
