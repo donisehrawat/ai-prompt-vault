@@ -3,6 +3,7 @@ package com.letsbuild.aipromptvault.controller;
 
 import com.letsbuild.aipromptvault.dto.PublicFeedResponse;
 import com.letsbuild.aipromptvault.dto.SignUpRequest;
+import com.letsbuild.aipromptvault.dto.ViewCreator;
 import com.letsbuild.aipromptvault.entity.Prompt;
 import com.letsbuild.aipromptvault.entity.User;
 import com.letsbuild.aipromptvault.enums.Role;
@@ -14,6 +15,8 @@ import com.letsbuild.aipromptvault.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +69,11 @@ public class PublicController {
 
     }
 
+    @GetMapping("/view-creator/{username}")
+    public ResponseEntity<ViewCreator> viewCreator(@PathVariable String username){
 
+        ViewCreator viewcreator = promptService.viewcreator(username);
 
-
+        return ResponseEntity.ok(viewcreator);
+    }
 }

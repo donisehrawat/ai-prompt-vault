@@ -94,4 +94,10 @@ public class PromptController {
 
     }
 
+    @GetMapping("/find")
+    public ResponseEntity<?> finder(@RequestParam String keyword){
+
+        return promptService.findButton(keyword);
+
+    }
 }

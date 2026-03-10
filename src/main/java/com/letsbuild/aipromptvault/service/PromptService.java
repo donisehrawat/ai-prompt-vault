@@ -1,8 +1,6 @@
 package com.letsbuild.aipromptvault.service;
 
-import com.letsbuild.aipromptvault.dto.CreatePromptRequest;
-import com.letsbuild.aipromptvault.dto.PublicFeedResponse;
-import com.letsbuild.aipromptvault.dto.ViewPrompts;
+import com.letsbuild.aipromptvault.dto.*;
 import com.letsbuild.aipromptvault.entity.Prompt;
 import com.letsbuild.aipromptvault.entity.User;
 import com.letsbuild.aipromptvault.enums.Visibility;
@@ -17,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,6 +31,9 @@ public class PromptService {
     private final PromptRepo promptRepo;
 
     private final UserService userService;
+
+
+
 
     public Prompt savePrompt(Prompt prompt){
         return promptRepo.save(prompt);
@@ -124,6 +126,70 @@ public class PromptService {
                 .tags(prompt.getTags())
                 .build();
     }
+
+    public ViewCreator viewcreator(String username){
+
+        User user = userService.findByUsername(username);
+        String userId = user.getId();
+
+        List<Prompt> byUserIdAndVisibility = promptRepo.findByUserIdAndVisibility(userId, Visibility.PUBLIC);
+
+        List<PublicFeedResponse> promptDtos =
+                byUserIdAndVisibility.stream()
+                        .map(this::convertToPublicDto)
+                        .toList();
+
+        return ViewCreator.builder()
+                .username(user.getUsername())
+                .followers(user.getFollowers())
+                .following(user.getFollowing())
+                .prompts(promptDtos)
+                .build();
+    }
+
+    public PromptSearchDto convertToPromptSearchDto(Prompt prompt){
+
+        return PromptSearchDto.builder()
+                .title(prompt.getTitle())
+                .content(prompt.getContent())
+                .tags(prompt.getTags())
+                .build();
+
+    }
+
+    public UserSearchDto convertToUserSearchDto(User user){
+
+        return UserSearchDto.builder()
+                .username(user.getUsername())
+                .build();
+
+    }
+
+    public ResponseEntity findButton(String keyword){
+
+        List<Prompt> content = promptRepo.findByContentContainingIgnoreCase(keyword);
+        List<Prompt> title = promptRepo.findByTitleContainingIgnoreCase(keyword);
+        List<Prompt> tags = promptRepo.findByTagsContainingIgnoreCase(keyword);
+        List<User> username = userRepo.findByUsernameContainingIgnoreCase(keyword);
+
+        List<PromptSearchDto> contentDto = content.stream().map(this::convertToPromptSearchDto).toList();
+        List<PromptSearchDto> titleDto = title.stream().map(this::convertToPromptSearchDto).toList();
+        List<PromptSearchDto> tagsDto = tags.stream().map(this::convertToPromptSearchDto).toList();
+
+        List<UserSearchDto> usernameDto = username.stream().map(this::convertToUserSearchDto).toList();
+
+        HashMap<String,Object> result = new HashMap<>();
+
+        result.put("Content Matches" , contentDto);
+        result.put("Title Matches" , titleDto);
+        result.put("username Matches" , usernameDto);
+        result.put("Tags Matches" , tagsDto);
+
+        return ResponseEntity.ok(result);
+
+    }
+
+
 
 
 }

@@ -1,12 +1,18 @@
 package com.letsbuild.aipromptvault.service;
 
 
+import com.letsbuild.aipromptvault.dto.PublicFeedResponse;
 import com.letsbuild.aipromptvault.dto.SignUpRequest;
+import com.letsbuild.aipromptvault.dto.ViewCreator;
+import com.letsbuild.aipromptvault.entity.Prompt;
 import com.letsbuild.aipromptvault.entity.User;
+import com.letsbuild.aipromptvault.enums.Visibility;
+import com.letsbuild.aipromptvault.repository.PromptRepo;
 import com.letsbuild.aipromptvault.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -14,6 +20,8 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepo userRepo;
+
+    private final PromptRepo promptRepo;
 
     public User saveUser(User user){
          return userRepo.save(user);
@@ -50,6 +58,13 @@ public class UserService {
         userRepo.save(user);
 
     }
+
+
+
+
+
+
+
 
 
 

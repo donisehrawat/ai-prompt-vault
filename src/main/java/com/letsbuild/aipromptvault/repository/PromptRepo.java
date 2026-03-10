@@ -12,4 +12,12 @@ public interface PromptRepo extends MongoRepository<Prompt,String> {
 
     List<Prompt> findByVisibilityOrderByCreatedAtDesc(Visibility visibility);
 
+    List<Prompt> findByUserIdAndVisibility(String userId, Visibility visibility);
+
+    List<Prompt> findByTitleContainingIgnoreCase(String keyword);
+
+    List<Prompt> findByContentContainingIgnoreCase(String keyword);
+
+    List<Prompt> findByTagsContainingIgnoreCase(String keyword);
+
 }
